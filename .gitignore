@@ -1,0 +1,5 @@
+go.mod
+go.sum
+app
+.air.toml
+tmp
