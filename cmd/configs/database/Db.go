@@ -23,6 +23,7 @@ func Connect() *gorm.DB {
 	}
 
 	sqlDb, err := DB.DB()
+
 	if err != nil {
 		log.Fatal(err)
 	}
