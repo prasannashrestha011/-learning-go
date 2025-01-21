@@ -42,3 +42,40 @@ func (s *UserService) RegisterUser(newUser *UserDTOS.CreateUserDTO) (response dt
 		StatusCode: 200,
 	}
 }
+func (s *UserService) GetUserByID(userId string) dtos.ResponseDto {
+	if userId == "" {
+		return dtos.ResponseDto{
+			Message: "Please provided valid user id",
+			Success: false,
+		}
+	}
+	foundUser, err := s.UserRepo.FetchUserByID(userId)
+	if err != nil {
+		return dtos.ResponseDto{
+			Message: err.Error(),
+			Success: false,
+		}
+	}
+	return dtos.ResponseDto{
+		Message:    "Found User",
+		StatusCode: 200,
+		Success:    true,
+		Data:       foundUser,
+	}
+}
+func (s *UserService) GetAllUsers() dtos.ResponseDto {
+	userList, err := s.UserRepo.FetchAllUsers()
+	if err != nil {
+		return dtos.ResponseDto{
+			Message:    err.Error(),
+			Success:    false,
+			StatusCode: 404,
+		}
+	}
+	return dtos.ResponseDto{
+		Message:    "User list",
+		Success:    true,
+		Data:       userList,
+		StatusCode: 200,
+	}
+}

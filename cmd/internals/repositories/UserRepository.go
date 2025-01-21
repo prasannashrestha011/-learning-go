@@ -41,3 +41,17 @@ func (userRepo *UserRepository) CreateUser(newUser *UserDTOS.CreateUserDTO) (err
 
 	return nil
 }
+func (userRepo *UserRepository) FetchUserByID(userId string) (*UserModel.UserModel, error) {
+	var fetchedUser UserModel.UserModel
+	if err := userRepo.DB.Preload("UserDetails").Where("user_id=?", userId).First(&fetchedUser).Error; err != nil {
+		return nil, err
+	}
+	return &fetchedUser, nil
+}
+func (userRepo *UserRepository) FetchAllUsers() ([]*UserModel.UserModel, error) {
+	var userList []*UserModel.UserModel
+	if err := userRepo.DB.Find(&userList).Error; err != nil {
+		return nil, errors.New("user list is empty")
+	}
+	return userList, nil
+}

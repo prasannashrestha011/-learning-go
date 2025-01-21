@@ -31,3 +31,16 @@ func (s UserController) RegisterUserHandler(ctx *gin.Context) {
 		"message": responseDto.Message,
 	})
 }
+func (s UserController) GetUserByID(ctx *gin.Context) {
+	userId := ctx.DefaultQuery("userId", "")
+	if userId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "User id is required",
+		})
+		return
+	}
+	responseDto := s.service.GetUserByID(userId)
+	ctx.JSON(responseDto.StatusCode, gin.H{
+		"message": responseDto,
+	})
+}
