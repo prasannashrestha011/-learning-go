@@ -1,9 +1,10 @@
 package UserService
 
+//package
 import (
+	UserDTOS "main/cmd/internals/dtos"
 	UserRepository "main/cmd/internals/repositories"
 	"main/cmd/internals/services/security"
-	UserModel "main/cmd/models"
 	"main/cmd/pkgs/dtos"
 )
 
@@ -17,7 +18,7 @@ func InitUserService(userRepo *UserRepository.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) RegisterUser(newUser *UserModel.UserModel) (response dtos.ResponseDto) {
+func (s *UserService) RegisterUser(newUser *UserDTOS.CreateUserDTO) (response dtos.ResponseDto) {
 	hashedPassword, err := security.HashPassword(newUser.Password)
 	if err != nil {
 		return dtos.ResponseDto{

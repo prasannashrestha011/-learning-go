@@ -2,10 +2,7 @@ package main
 
 import (
 	databaseconfig "main/cmd/configs/databaseConfig"
-	usercontroller "main/cmd/internals/controllers/UserController"
-	UserRepository "main/cmd/internals/repositories"
-	UserService "main/cmd/internals/services"
-	AuthRoutes "main/cmd/routes"
+	"main/cmd/containers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,11 +11,7 @@ func main() {
 	r := gin.Default()
 
 	DB := databaseconfig.Connect()
-	userRepo := UserRepository.InitUserRepo(DB)
-	userService := UserService.InitUserService(userRepo)
-	userController := usercontroller.InitUserController(userService)
-
-	AuthRoutes.AuthRoutes(r, userController)
+	containers.InitUserContainer(r, DB)
 	r.Run()
 
 }

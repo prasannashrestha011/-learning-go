@@ -2,7 +2,6 @@ package databaseconfig
 
 import (
 	"log"
-	UserModel "main/cmd/models"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -34,6 +33,6 @@ func Connect() *gorm.DB {
 		log.Fatal("Ping error->", err.Error())
 	}
 	log.Println("Database connection successfull")
-	db.AutoMigrate(&UserModel.UserModel{})
+	AutoMigrate(db)
 	return db
 }

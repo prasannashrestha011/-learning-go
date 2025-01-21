@@ -1,8 +1,8 @@
 package usercontroller
 
 import (
+	UserDTOS "main/cmd/internals/dtos"
 	UserService "main/cmd/internals/services"
-	UserModel "main/cmd/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,10 +18,11 @@ func InitUserController(service *UserService.UserService) *UserController {
 	}
 }
 func (s UserController) RegisterUserHandler(ctx *gin.Context) {
-	var reqBody *UserModel.UserModel
+	var reqBody *UserDTOS.CreateUserDTO
 	if err := ctx.BindJSON(&reqBody); err != nil {
+
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Insufficent details",
+			"message": err.Error(),
 		})
 		return
 	}
