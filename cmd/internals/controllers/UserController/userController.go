@@ -44,3 +44,9 @@ func (s UserController) GetUserByID(ctx *gin.Context) {
 		"message": responseDto,
 	})
 }
+func (s UserController) GetAllUsers(ctx *gin.Context) {
+	responseDto := s.service.GetAllUsers()
+	ctx.JSON(responseDto.StatusCode, gin.H{
+		"message": responseDto,
+	})
+}

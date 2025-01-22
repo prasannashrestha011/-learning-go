@@ -6,6 +6,7 @@ import (
 	UserRepository "main/cmd/internals/repositories"
 	"main/cmd/internals/services/security"
 	"main/cmd/pkgs/dtos"
+	schemavalidators "main/cmd/pkgs/schema_validators"
 )
 
 type UserService struct {
@@ -19,6 +20,14 @@ func InitUserService(userRepo *UserRepository.UserRepository) *UserService {
 }
 
 func (s *UserService) RegisterUser(newUser *UserDTOS.CreateUserDTO) (response dtos.ResponseDto) {
+	isEmailValid, err := schemavalidators.ValidateEmail(newUser.Email)
+	if !isEmailValid {
+
+		return dtos.ResponseDto{
+			Success: false,
+			Message: err.Error(),
+		}
+	}
 	hashedPassword, err := security.HashPassword(newUser.Password)
 	if err != nil {
 		return dtos.ResponseDto{
