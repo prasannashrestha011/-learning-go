@@ -11,6 +11,10 @@ type CreateUserDTO struct {
 	UpdatedAt   *time.Time     `json:"updated_at"`
 	UserDetails UserDetailsDTO `json:"user_details"`
 }
+type AuthUserDTO struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 type UserDetailsDTO struct {
 	DetailId      *string `json:"detail_id"`
 	Address       string  `json:"address"`

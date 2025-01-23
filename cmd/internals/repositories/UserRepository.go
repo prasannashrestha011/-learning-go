@@ -55,3 +55,16 @@ func (userRepo *UserRepository) FetchAllUsers() ([]*UserModel.UserModel, error) 
 	}
 	return userList, nil
 }
+
+func (userRepo *UserRepository) FetchUserByUsername(username string) (*UserDTOS.AuthUserDTO, error) {
+	var fetchedUser UserModel.UserModel
+	if err := userRepo.DB.Select("username,password").
+		Where("username=?", username).First(&fetchedUser).Error; err != nil {
+		return nil, errors.New("username not found")
+	}
+	authUser := UserDTOS.AuthUserDTO{
+		Username: fetchedUser.Username,
+		Password: fetchedUser.Password,
+	}
+	return &authUser, nil
+}

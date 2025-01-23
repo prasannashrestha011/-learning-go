@@ -31,6 +31,17 @@ func (s UserController) RegisterUserHandler(ctx *gin.Context) {
 		"message": responseDto.Message,
 	})
 }
+func (s UserController) LoginHandler(ctx *gin.Context) {
+	var reqBody *UserDTOS.AuthUserDTO
+	if err := ctx.BindJSON(&reqBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid login information"})
+	}
+	authDto := s.service.AuthenticatedUser(*reqBody)
+	ctx.JSON(authDto.StatusCode, gin.H{
+		"message": authDto,
+	})
+}
+
 func (s UserController) GetUserByID(ctx *gin.Context) {
 	userId := ctx.DefaultQuery("userId", "")
 	if userId == "" {

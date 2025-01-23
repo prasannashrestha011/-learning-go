@@ -51,6 +51,31 @@ func (s *UserService) RegisterUser(newUser *UserDTOS.CreateUserDTO) (response dt
 		StatusCode: 200,
 	}
 }
+func (s *UserService) AuthenticatedUser(user UserDTOS.AuthUserDTO) *dtos.DataDto {
+	authUser, err := s.UserRepo.FetchUserByUsername(user.Username)
+	if err != nil {
+		return &dtos.DataDto{
+			Data:       nil,
+			StatusCode: 403,
+			Success:    false,
+		}
+	}
+	isAuthenticated := security.ComparePassword(authUser.Password, user.Password)
+	if !isAuthenticated {
+		errMessage := "Invalid password, please try again"
+		return &dtos.DataDto{
+			Data:       nil,
+			StatusCode: 403,
+			Success:    false,
+			Message:    &errMessage,
+		}
+	}
+	return &dtos.DataDto{
+		Data:       authUser,
+		StatusCode: 200,
+		Success:    true,
+	}
+}
 func (s *UserService) GetUserByID(userId string) dtos.ResponseDto {
 	if userId == "" {
 		return dtos.ResponseDto{
