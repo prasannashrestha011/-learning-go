@@ -1,8 +1,10 @@
 package usercontroller
 
 import (
+	"log"
 	UserDTOS "main/cmd/internals/dtos"
 	UserService "main/cmd/internals/services"
+	jwtconfigs "main/cmd/pkgs/jwtConfigs"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,12 +33,28 @@ func (s UserController) RegisterUserHandler(ctx *gin.Context) {
 		"message": responseDto.Message,
 	})
 }
+
 func (s UserController) LoginHandler(ctx *gin.Context) {
 	var reqBody *UserDTOS.AuthUserDTO
 	if err := ctx.BindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid login information"})
 	}
 	authDto := s.service.AuthenticatedUser(*reqBody)
+	if authDto.Success {
+		authToken, err := jwtconfigs.CreateToken(reqBody.Username)
+		if err != nil {
+			log.Fatal("error", err.Error())
+		}
+		ctx.SetCookie(
+			"auth_token",
+			authToken,
+			3600,
+			"/",
+			"",
+			false,
+			true,
+		)
+	}
 	ctx.JSON(authDto.StatusCode, gin.H{
 		"message": authDto,
 	})
