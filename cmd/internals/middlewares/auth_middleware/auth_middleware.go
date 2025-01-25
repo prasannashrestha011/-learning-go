@@ -10,13 +10,14 @@ import (
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token, err := ctx.Cookie("auth_token")
-		if err != nil {
+		accessToken := ctx.Request.Header.Get("Access_Token")
+		log.Println("Your auth header", accessToken)
+		if accessToken == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "auth cookie not found"})
 			ctx.Abort()
 			return
 		}
-		isValidToken, err := jwtconfigs.ValidateToken(token)
+		isValidToken, err := jwtconfigs.ValidateToken(accessToken)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			ctx.Abort()

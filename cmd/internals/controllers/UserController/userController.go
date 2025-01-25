@@ -41,25 +41,37 @@ func (s UserController) LoginHandler(ctx *gin.Context) {
 	}
 	authDto := s.service.AuthenticatedUser(*reqBody)
 	if authDto.Success {
-		authToken, err := jwtconfigs.CreateToken(reqBody.Username)
+		accessToken, err := jwtconfigs.CreateAccessToken(reqBody.Username)
 		if err != nil {
 			log.Fatal("error", err.Error())
 		}
-		ctx.SetCookie(
-			"auth_token",
-			authToken,
-			3600,
-			"/",
-			"",
-			false,
-			true,
-		)
+		refreshToken, err := jwtconfigs.CreateRefreshToken(reqBody.Username)
+		if err != nil {
+			log.Fatalln("Refresh token error->", err.Error())
+		}
+		ctx.Header("Access_Token", accessToken)
+		ctx.Header("Refresh_Token", refreshToken)
 	}
 	ctx.JSON(authDto.StatusCode, gin.H{
 		"message": authDto,
 	})
 }
-
+func (s UserController) RenewAccessTokenHandler(ctx *gin.Context) {
+	refreshTokenString := ctx.Request.Header.Get("Refresh_Token")
+	if refreshTokenString == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Refresh token is not provided",
+		})
+		return
+	}
+	accessToken, err := s.service.RenewAccessToken(refreshTokenString)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.Header("Access_Token", accessToken)
+	ctx.JSON(http.StatusOK, gin.H{})
+}
 func (s UserController) GetUserByID(ctx *gin.Context) {
 	userId := ctx.DefaultQuery("userId", "")
 	if userId == "" {

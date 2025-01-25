@@ -2,17 +2,31 @@ package jwtconfigs
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(username string) (string, error) {
-	jwtSecret := os.Getenv("JWT_SECRET")
+var jwtSecret = os.Getenv("JWT_SECRET")
+
+func CreateAccessToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": username,
-		"exp": time.Now().Add(time.Minute * 15).Unix(),
+		"exp": time.Now().Add(time.Minute * 3).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func CreateRefreshToken(username string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": username,
+		"exp": time.Now().Add(time.Hour * 2).Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
@@ -28,14 +42,7 @@ func ValidateToken(tokenString string) (bool, error) {
 	}
 
 	// Parse the token with the secret key
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(jwtSecret), nil
-	})
-
+	token, err := ParseAuthToken(tokenString)
 	if err != nil {
 		return false, err
 	}
@@ -61,4 +68,19 @@ func ValidateToken(tokenString string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ParseAuthToken(tokenString string) (*jwt.Token, error) {
+	log.Println("Token string->", tokenString)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(jwtSecret), nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error parsing the token string :%v", err)
+	}
+	return token, nil
 }

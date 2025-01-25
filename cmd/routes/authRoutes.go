@@ -14,5 +14,6 @@ func AuthRoutes(r *gin.Engine, userController *usercontroller.UserController) {
 		routerGroup.GET("/user", authmiddleware.AuthMiddleware(), userController.GetUserByID)
 		routerGroup.GET("/all/users", authmiddleware.AuthMiddleware(), userController.GetAllUsers)
 		routerGroup.POST("/login", userController.LoginHandler)
+		routerGroup.GET("/renew/access_token", userController.RenewAccessTokenHandler)
 	}
 }

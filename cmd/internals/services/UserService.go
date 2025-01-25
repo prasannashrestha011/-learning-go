@@ -6,6 +6,7 @@ import (
 	UserRepository "main/cmd/internals/repositories"
 	"main/cmd/internals/services/security"
 	"main/cmd/pkgs/dtos"
+	jwtmethods "main/cmd/pkgs/jwtConfigs/jwt_methods"
 	schemavalidators "main/cmd/pkgs/schema_validators"
 )
 
@@ -50,6 +51,13 @@ func (s *UserService) RegisterUser(newUser *UserDTOS.CreateUserDTO) (response dt
 		Success:    true,
 		StatusCode: 200,
 	}
+}
+func (s *UserService) RenewAccessToken(refreshToken string) (string, error) {
+	accessTokenString, err := jwtmethods.RenewAccessToken(refreshToken)
+	if err != nil {
+		return "", err
+	}
+	return accessTokenString, nil
 }
 func (s *UserService) AuthenticatedUser(user UserDTOS.AuthUserDTO) *dtos.DataDto {
 	authUser, err := s.UserRepo.FetchUserByUsername(user.Username)
